@@ -15,7 +15,7 @@ import Hello from './components/goods/Hello'
 //引入到全局这样可以使用class='border-1px'实现真正1px底边
 import  './common/stylus/index.styl'
 
-//全局注册
+//全局注册后，到处都可以
 Vue.use(VueResource)
 Vue.use(VueRouter)
 

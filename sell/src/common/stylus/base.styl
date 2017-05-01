@@ -1,3 +1,21 @@
+body,html
+  line-height:1
+  font-weight:200
+  
+
+  //字体从第一个开始，没有往后面，都没有返回系统字体
+  font-family:'PingFang SC','STHeitiSC-Light','HeLvetica-Light',arial,sans-serif
+
+  .clearfix
+    display:inline-block
+    &:after
+      display:block
+      content:"."
+      
+      height:0
+      line-height:0
+      clear:both
+      visibility:hidden
 // 将最小DPR为1.5手机进行缩放（实现真正1px)
 // @media(-webkit-min-device-pixel-ratio:1.5),(-webkit-min-device-pixel-ratio:1.5)
 // //.border-1px下面必须有缩进，不然回出错

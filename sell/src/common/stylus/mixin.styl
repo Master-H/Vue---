@@ -9,3 +9,8 @@ border-1px($color)
     width:100% 
     border-top:1px solid $color
     content:' '
+//用来处理2x和3x图片的函数
+bg-image($url)
+    background-image:url($url + "@2x.png")
+    @media (-webkit-min-device-pixel-ration:3), (-webkit-min-device-pixel-ration:3)
+        background-image:url($url + "@3x.png")

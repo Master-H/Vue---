@@ -1,35 +1,28 @@
 <template>
-  <div id="app">
-     <div class='header'>
-      头部
-
-       <div class='tab border-1px'>
+  <div id="app"> 
+      <v-header :seller='seller'></v-header>
+      <div class='tab border-1px'>
         <div class="tab-item">
             <router-link :to="{path: 'goods'}" >商品
-          </router-link>
-                  
+          </router-link>       
         </div>
-        
         <div class="tab-item">
          <router-link :to="{path: 'ratings' }">评论</router-link>
-          
         </div>
         <div class="tab-item">
           <router-link :to="{path: 'seller'}" >商家</router-link>
-          
         </div>
-     </div>
-    </div>   
+      </div>   
      <router-view></router-view> 
-    
-   </div>
+  </div>
 </template>
-<script>
+<script >
   import header from './components/header/header'
   // import apps from './components/goods/apps'
+  const ERR_OK = 0;
   export default{
     components:{
-      // 'v-header':header,
+      'v-header':header,
       // 'v-apps':apps
     },
     data() {
@@ -41,10 +34,14 @@
     // creat钩子函数
     created(){
       this.$http.get('/api/seller').then((response) => {  
-        //转换成JSON对象，本来response是一个属性
-        response = response.json();
-        if(response.errno === 0){
-
+        // console.log(response)//看response情况
+        //将response的东西转为一个对象
+        response = response.body;
+        //直接用ERR_OK代替0，如果有多个地方，以后需要改动状态码（ERR_OK为1.。），只需改变ERR_OK的值就行
+        //errno和data是AJAX请求response带有的属性
+        if(response.errno === ERR_OK){
+          this.seller = response.data;
+          console.log(this.seller)
         }
       })
     }
