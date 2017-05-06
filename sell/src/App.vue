@@ -12,8 +12,9 @@
         <div class="tab-item">
           <router-link :to="{path: 'seller'}" >商家</router-link>
         </div>
-      </div>   
-     <router-view></router-view> 
+      </div> 
+    <!--   这里传入seller，是因为，shopcart模板接受父组件goods的seller.deliveryPrice,而seller这个自定义属性必须从goods模板的父组件APP模板定义才行；goods是APP的子路由，是渲染到父组件的router-view上的，所以在这里定义了:seller='seller' -->
+     <router-view :seller='seller'></router-view> 
   </div>
 </template>
 <script >

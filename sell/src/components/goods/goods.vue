@@ -3,7 +3,8 @@
   <!-- 这里的foods-wrapper不能写成驼峰 -->
     <div class='menu-wrapper' ref='menuWrapper'>
       <ul>
-        <li v-for='item in goods' class="menu-item">
+      <!-- 如果直接@click='select(index)'，在手机端正常，但是在PC端会触发两次，因为本身BScrool默认阻止元素的点击事件，而在电脑上时，BScrool不制止原生click事件，再加上派生的一次点击事件(click:true)所以会触发两次，@event是VUE中的事件 -->
+        <li v-for='(item,index) in goods' class="menu-item" :class="{'current':currentIndex===index}" @click='selectMenu(index,$event)'>
           <span class="text border-1px">
             <span v-show='item.type>0' class='icon' :class='classMap[item.type]'></span>{{item.name}}
           </span>
@@ -16,7 +17,7 @@
         <li v-for='item in goods' class="food-list food-list-hook">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li v-for='food in item.foods' class="food-item  border-1px" >
+            <li @click='selectFood(food,$event)' v-for='food in item.foods' class="food-item  border-1px" >
               <div class="icon">
                 <img width='57' height='57' :src="food.icon" alt="">
                 
@@ -30,22 +31,37 @@
                 <div class="price">
                   <span class="now">￥{{food.price}}</span>
                   <span class="old" v-show='food.oldPrice'>￥{{food.oldPrice}}</span>
-                  
-                </div>            
+                </div> 
+                <div class="cartcontrol-wrapper">
+                   <cartcontrol @add='addFood' :food='food'></cartcontrol>          
+                </div>           
               </div>
             </li>
           </ul>
         </li>
       </ul>
     </div>
+    <!-- ref='shopcart'是为了让父组件能够访问子组件 -->
+    <shopcart ref='shopcart' :selectFoods='selectFoods' :deliveryPrice="seller.deliveryPrice" :minPrice = "seller.minPrice" ></shopcart>
+    <!-- ref='food'为了可以调用子组件的方法 -->
+    <food @add='addFood' :food='selectedFood' ref='food'></food>
   </div>
+
  
 </template>
 
 <script>
 import BScroll from 'better-scroll'
+import shopcart from '../shopcart/shopcart'
+import cartcontrol from '../cartcontrol/cartcontrol'
+import food from '../food/food'
 const ERR_OK = 0
 export default {
+  components:{
+    shopcart,
+    cartcontrol,
+    food
+  },
   props:{
     seller:{
       type:Object
@@ -74,23 +90,54 @@ export default {
       //开始goods为空，当调用这个组件时，通过后端去请求数据
       goods: [],
       listHeight:[],
-      scrollY:0
+      scrollY:0,
+      selectedFood:{}
+    }
+  },
+  computed:{
+    currentIndex(){
+      for(let i =0;i<this.listHeight.length;i++){
+        let height1 = this.listHeight[i];
+        let height2 = this.listHeight[i+1];
+        //开发遇到的问题，不取等号一开始不会变白，
+        if(!height2 ||(this.scrollY>=height1 && this.scrollY<height2)){
+          return i
+        }
+      }
+      return 0;
+    },
+    selectFoods(){
+      let foods = [];
+      this.goods.forEach((good)=>{
+        good.foods.forEach((food)=>{
+          if(food.count){
+            foods.push(food)
+          }
+        });
+      });
+      return foods;
     }
   },
   methods:{
     _initScroll(){
-      //this.$refs.foodsWrapper取到这个DOM
-      this.menuScroll = new BScroll(this.$refs.menuWrapper,{})
+      //this.$refs.foodsWrapper取到这个DOM,不设置click:true原生的点击事件因为被默认阻止，设置click:true相当于 BScroll派发一个点击事件
+      this.menuScroll = new BScroll(this.$refs.menuWrapper,{click:true})
       //传入的probeType：3目的是为了让Scroll在滚动的时候实时告诉我们滚动的位置
-      this.foodsScroll = new BScroll(this.$refs.foodsWrapper,{probeType:3});
+      this.foodsScroll = new BScroll(this.$refs.foodsWrapper,{
+        probeType:3,
+        click:true
+      }
+        
+        );
       //通过on实时暴露出scroll的位置,pos就是位置
-      // this.foodsScroll.on('scroll',(pos)=>{
-      //   // pos.y为小数负值要转换,取到正整数的scrolly
-      //   this.scrollY = Math.bas(Math.round(pos.y));
-      // })
+      this.foodsScroll.on('scroll',(pos)=>{
+        // pos.y为小数负值要转换,取到正整数的滚动时的实时scrolly
+        this.scrollY = Math.abs(Math.round(pos.y));
+      })
     },
     _calculateHeight(){
-      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      // let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      let foodList = this.$refs.foodsWrapper.querySelectorAll('.food-list-hook')
       let height = 0;
       this.listHeight.push(height);
       for(let i=0;i<foodList.length;i++){
@@ -98,6 +145,35 @@ export default {
         height += item.clientHeight;
         this.listHeight.push(height)
       }
+    },
+    //点击menu跳转到相应的界面
+    selectMenu(index,event){
+      // 开发遇到的问题
+      // 原生的点击事件没有event._constructed,vue才有，所以当为PC端时，event._constructed为false,直接执行return，所以就避免了两次输出
+      if(!event._constructed){
+        return;
+      }
+      let foodList = this.$refs.foodsWrapper.querySelectorAll('.food-list-hook')
+      let el = foodList[index];
+      //better-scrool的一个一个接口scroollToElement
+      this.foodsScroll.scrollToElement(el,300);
+    },
+    addFood(target) {
+      this._drop(target);
+    },
+    _drop(target) {
+      // 体验优化,异步执行下落动画
+      this.$nextTick(() => {
+        //因为上面设置了ref='shopcart'可以方位子组件，所以这里通过$refs访问子组件
+        this.$refs.shopcart.drop(target);
+       });
+    },
+    selectFood(food,event){
+       if(!event._constructed){
+        return;
+      }
+      this.selectedFood = food;
+      this.$refs.food.show();
     }
   }
 
@@ -128,6 +204,16 @@ export default {
         height:54px
         width:56px
         line-height:14px
+        &.current
+          position:relative
+          margin-top:-1px
+          background:#fff
+          z-index:10
+          .text
+            font-weight:700
+            //激活current时去掉下面那条线
+            border-none()
+            // font-size:14px
         .text
           display: table-cell
           width: 56px
@@ -206,5 +292,10 @@ export default {
               text-decoration:line-through
               font-size:10px
               color:rgb(147,153,159)
+              
+          .cartcontrol-wrapper
+            position:absolute
+            right:0
+            bottom:12px
               
 </style>

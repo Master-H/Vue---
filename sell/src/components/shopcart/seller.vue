@@ -1,6 +1,8 @@
 <template>
-  <div class="rating">
-   </div>
+  <div class="shopcart">
+    我是商家
+    <p>{{msg}}</p>
+  </div>
 </template>
 
 <script>
