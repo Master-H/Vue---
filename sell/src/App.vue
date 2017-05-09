@@ -14,10 +14,15 @@
         </div>
       </div> 
     <!--   这里传入seller，是因为，shopcart模板接受父组件goods的seller.deliveryPrice,而seller这个自定义属性必须从goods模板的父组件APP模板定义才行；goods是APP的子路由，是渲染到父组件的router-view上的，所以在这里定义了:seller='seller' -->
-     <router-view :seller='seller'></router-view> 
+   <!--  使用keep-alive组件之间切换时，状态会被保存，声明周期不会被重新加载，体验更好 -->
+     <keep-alive>
+       <router-view :seller='seller'></router-view> 
+     </keep-alive>
+     
   </div>
 </template>
 <script >
+  import {urlParse} from './common/js/util'
   import header from './components/header/header'
   // import apps from './components/goods/apps'
   const ERR_OK = 0;
@@ -28,20 +33,24 @@
     },
     data() {
       return {
-        seller:{},
-        url:'goods'
-      }
+        seller: {
+          id: (() => {
+            let queryParam = urlParse();
+            return queryParam.id;
+          })
+        }
+      };
     },
     // creat钩子函数
     created(){
-      this.$http.get('/api/seller').then((response) => {  
+      this.$http.get('/api/seller?id=' + this.seller.id).then((response) => {  
         // console.log(response)//看response情况
         //将response的东西转为一个对象
         response = response.body;
         //直接用ERR_OK代替0，如果有多个地方，以后需要改动状态码（ERR_OK为1.。），只需改变ERR_OK的值就行
         //errno和data是AJAX请求response带有的属性
         if(response.errno === ERR_OK){
-          this.seller = response.data;
+         this.seller = Object.assign({}, this.seller, response.data);
           console.log(this.seller)
         }
       })
