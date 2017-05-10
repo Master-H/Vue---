@@ -24,11 +24,12 @@ Vue.config.productionTip = false;
 //下面行是一个跳过eslint的一个规则，因为eslint中实例必须，给变量
 /* eslint-disable no-new */
 let router = new VueRouter({
-  mode: 'history',
+  //加了mode:'history'会导致build后监听接口刷新挂掉（首次加载不会），开启HTML5 History Mode后，尤其需要server端的支持
+  // mode: 'history',
   routes: [
     {
       path: '/',
-      component: goods
+      redirect: '/goods'
     },
      {
       path: '/goods',

@@ -19,7 +19,13 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+
+    //因为调用了后端的一些接口，所以在这里新建一个接口
+    port:9000
+
+    //因为调用了后端的一些接口，所以在这里新建一个接口
+
   },
   dev: {
     env: require('./dev.env'),

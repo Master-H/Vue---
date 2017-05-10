@@ -9,6 +9,7 @@ var opn = require('opn')
 var path = require('path')
 var express = require('express')
 var webpack = require('webpack')
+var opn = require('opn')
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
 
@@ -44,6 +45,14 @@ apiRouters.get('/goods',function(req,res){
 })
 
 apiRouters.get('/ratings',function(req,res){
+  res.json({
+    errno:0,
+    data:ratings
+  })
+})
+
+//测试新增
+apiRouters.get('/',function(req,res){
   res.json({
     errno:0,
     data:ratings
