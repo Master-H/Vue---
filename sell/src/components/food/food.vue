@@ -195,12 +195,12 @@ export default {
     &.move-enter
       opacity:0
       transform:translate3d(-100%,0,0) 
-    &.move-enter-active,&.move-leave
+    &.move-enter-active,&.move-leave-active
       transition all 0.3s linear
-      transform:translate3d(0,0,0)
+      // transform:translate3d(0,0,0)
     &.move-leave-active
-      transition all 1s linear
-      transform:translate3d(100%,100%,0)
+      // transition all 1s linear
+      transform:translate3d(-100%,0,0)
       opacity:0
       //image-header设置一个宽高相等的容器，以显示（手机）的宽度来定这个容器，而不会因为高度为零，有内容来撑开，导致图片占满整个屏幕
     .image-header

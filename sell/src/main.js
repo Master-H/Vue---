@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import App from './App';
 // import router from './router';
+// import jsonloader from 'json-loader';
 import VueResource from 'vue-resource';
 import VueRouter from 'vue-router';
 import goods from './components/goods/goods';
