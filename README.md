@@ -1,4 +1,4 @@
-# 饿了么点餐系统 #
+# Webapp点餐系统 #
 >基于Vue.js 2.0的Webapp项目<br/>
 >技术：vue2.0 、vue-cli、vue-resource、vue-router、ES6、better-scroll、stylus
 
